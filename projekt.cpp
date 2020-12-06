@@ -8,7 +8,6 @@
 #define PRUPLAV_RYCHLE 10
 #define PRUPLAV_POMALU_A 14
 #define PRUPLAV_POMALU_B 18
-#
 
 #define PROFIT 0
 #define ZBOZI_TRIDA_1 0.81 // podil zbozi 10%
@@ -17,7 +16,6 @@
 #define ZBOZI_TRIDA_4 0.66 // podil zbozi 15%
 #define ZBOZI_TRIDA_5 0.57 // podil zbozi 20%
 #define ZBOZI_TRIDA_6 0.40 // podil zbozi 30%
-#define STREDNI_LOZENI_PLAVIDLA 3088 // hmostnost v tunach
 
 class generator: public Event {
 public:
@@ -35,17 +33,40 @@ void print_help() {
 	_Print("pomoc is here\n");
 }
 
-int get_time() {
-	return (int)(Time)%(DAY);
+void lod::Behavior() {
+	if (!Plavebni_komora.Full()) {
+		Enter(Plavebni_komora);
+		double random_cislo = Random();
+		_Print("random %d\n", random_cislo);
+		if (random_cislo < 0.1) {
+			Wait(Uniform(10, 14)); // cekame nez lod proplave
+		}
+		else if (random_cislo < 0.2 && random_cislo > 0.1) {
+			Wait(Uniform(PRUPLAV_RYCHLE, PRUPLAV_POMALU_B)); // cekame nez lod proplave
+		}
+		else if (random_cislo < 0.35 && random_cislo > 0.2) {
+			Wait(Uniform(PRUPLAV_RYCHLE, PRUPLAV_POMALU_B)); // cekame nez lod proplave
+		}
+		else if (random_cislo < 0.5 && random_cislo > 0.35) {
+			Wait(Uniform(PRUPLAV_RYCHLE, PRUPLAV_POMALU_A)); // cekame nez lod proplave
+		}
+		else if (random_cislo < 0.7 && random_cislo > 0.5) {
+			Wait(Uniform(PRUPLAV_RYCHLE, PRUPLAV_POMALU_A)); // cekame nez lod proplave
+		}
+		else if (random_cislo < 1.0 && random_cislo > 0.7) {
+			Wait(Uniform(PRUPLAV_RYCHLE, PRUPLAV_POMALU_A)); // cekame nez lod proplave
+		}
+		Leave(Plavebni_komora);
+	}
+	else {
+		Wait(15);
+	}
 }
 
 void generator::Behavior() {
-	(new lod)->Activate();
-
-	int time_of_day = get_time();
-	double time_to_next_request = 0;
-	if (time_of_day < (12*DAY)) {
-
+	_Print("generator\n");
+	for (int i = 0; i < pocet_lodi; i++) {
+		(new lod)->Activate();
 	}
 }
 
@@ -67,7 +88,7 @@ int main(int argc, char const *argv[])
 	}
 
 	RandomSeed(time(NULL));
-	Init(0, WEEK);
+	Init(0, SIMULATION_DAYS);
 	(new generator)->Activate();
 	Run();
 
