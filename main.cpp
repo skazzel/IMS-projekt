@@ -182,9 +182,8 @@ int main(int argc, char const *argv[])
 		if((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "-h") == 0)){
 			print_help();
 			exit(EXIT_SUCCESS);
-		}
-        //pocet lodi
-		if(strcmp(argv[i], "-n") == 0) {
+		}else if(strcmp(argv[i], "-n") == 0) {
+            //pocet lodi
             i++;
             if(argc == i){
                 std::cerr << "Nebyl zadan pocet lodi" << std::endl;
@@ -198,9 +197,8 @@ int main(int argc, char const *argv[])
                     exit(EXIT_FAILURE);
                 }
             }
-		}
-		//vyber koridoru
-		if((strcmp(argv[i], "--corridor") == 0) || (strcmp(argv[i], "-c") == 0)){
+		}else if((strcmp(argv[i], "--corridor") == 0) || (strcmp(argv[i], "-c") == 0)){
+            //vyber koridoru
             i++;
             if (argc == i) {
                 std::cerr << "Nebyl zadan koridor" << std::endl;
@@ -220,9 +218,8 @@ int main(int argc, char const *argv[])
                     exit(EXIT_FAILURE);
                 }
             }
-		}
-        //vyber poctu let
-        if((strcmp(argv[i], "--year") == 0) || (strcmp(argv[i], "-y") == 0)){
+		}else if((strcmp(argv[i], "--year") == 0) || (strcmp(argv[i], "-y") == 0)){
+            //vyber poctu let
             i++;
             if (argc == i) {
                 std::cerr << "Nebyl zadan rok" << std::endl;
@@ -238,7 +235,10 @@ int main(int argc, char const *argv[])
                     exit(EXIT_FAILURE);
                 }
             }
-		}
+		}else{
+            std::cerr << "Spatne zadan argument" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 	}
 	get_chamber();
     get_cost();
