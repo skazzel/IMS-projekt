@@ -16,12 +16,12 @@ public:
 	void Behavior();
 };
 
-int profit = 0;
+double profit = 0;
 int simulation_time = 0;
 Histogram pozadavky_lode("Pozadavky lode", 0, 1000, 20);
 int pocet_lodi = 40;
 int STREDNI_LOZENI_PLAVIDLA = 3088; 
-int ZBOZI_TRIDA_cena = 0;
+float ZBOZI_TRIDA_cena = 0;
 const int MINUTE = 60;
 const int HOUR = 3600;
 const int DAY = 86400;
@@ -36,15 +36,26 @@ int get_time() {
 	return (int)(Time)%(DAY);
 }
 
-class lod: public Process {
+class Lod: public Process {
+	int pracovni_doba[3];
+public:
+	Lod(int doba1, int doba2, int doba3) : Process() {
+		pracovni_doba[0] = doba1;
+		pracovni_doba[1] = doba2;
+		pracovni_doba[2] = doba3;
+	}
+
 	double prichod;
+
 	void Behavior() {
 		prichod = Time;
 		int time_of_day = get_time();
+		//Wait(10);
+		//_Print("TIME %f\n", Time);
 		if (!Plavebni_komora.Full()) {
-			Enter(Plavebni_komora);
+			Wait(Exponential(20*MINUTE));
+			Enter(Plavebni_komora, 1);
 			double random_cislo = Random();
-			_Print("random %d\n", random_cislo);
 			if (random_cislo < 0.1) {
 				Wait(Exponential(10*MINUTE)); // cekame nez lod proplave
 				ZBOZI_TRIDA_cena = 0.81;
@@ -70,22 +81,43 @@ class lod: public Process {
 				ZBOZI_TRIDA_cena = 0.40;
 			}
 			profit = STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena;
-			_Print("Profit %d\n", profit);
-			Leave(Plavebni_komora);
-			pozadavky_lode(Time - prichod);
+			double random_procento = Random();
+			if (random_procento <= 0.33) {
+				
+			}
+			_Print("Profit %lf\n", profit);
+			//_Print("CENA %f\n", ZBOZI_TRIDA_cena);
+			//_Print("plavebni komora11 %d\n", Plavebni_komora.Full());
+			_Print("TIME %f\n", Time);
+			Leave(Plavebni_komora, 1);
+			//pozadavky_lode(Time - prichod);
 		}
 	}
 };
 
 void generator::Behavior() {
-	(new lod)->Activate();
-
-	//Activate(Time + Exponential(1));
+	_Print("Pocet lodi %d\n", pocet_lodi);
+	for (int i = 0; i < pocet_lodi; i++) {
+		Lod* lod = (new Lod(6, 16, 19));
+		lod->Activate();
+	}
+	/*int tod = get_time();
+	_Print("CAS %d\n", tod);
+	double timeToNextRequest = 0;
+		if(tod < (12*HOUR)){
+			timeToNextRequest = 2057;
+		}else if(tod < (18*HOUR)){
+			timeToNextRequest = 280;
+		}else if(tod < (22*HOUR)){
+			timeToNextRequest = 305;
+		}else{
+			timeToNextRequest = 500;
+		}
+		Activate(Time+Normal(timeToNextRequest, 0.1));*/
 }
 
 int main(int argc, char const *argv[])
 {
-
 	SetOutput("data.dat");
 	_Print("# IMS - DOL projekt\n");
 	simulation_time = WEEK;
@@ -97,7 +129,6 @@ int main(int argc, char const *argv[])
 		}
 		if (strcmp(argv[i], "-n") == 0) {
 			pocet_lodi = atol(argv[i+1]);
-			_Print("Pocet lodi %d\n", pocet_lodi);
 		}
 		if (strcmp(argv[i], "-t") == 0) {
 			try {
@@ -112,6 +143,7 @@ int main(int argc, char const *argv[])
 	_Print("%d", simulation_time);
 	RandomSeed(time(NULL));
 	Init(0, simulation_time);
+
 	(new generator)->Activate();
 	Run();
 
