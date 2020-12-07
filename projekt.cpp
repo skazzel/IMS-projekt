@@ -1,7 +1,7 @@
-#include "simlib.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <simlib.h>
+#include <string>
+#include <ctime>
+#include <cstring>
 #include <iostream>
 
 #define ZBOZI_TRIDA_1 0.81 // podil zbozi 10%
@@ -26,14 +26,71 @@ const int MINUTE = 60;
 const int HOUR = 3600;
 const int DAY = 86400;
 const int WEEK = 604800;
+//koridor
+enum Corridor_type {
+    DOL,
+    DO,
+    DL,
+    LO
+};
+Corridor_type corridor = DOL;
+//cas v rocich
+int year = 1;
+//celkove naklady
+double costs;
+
 Store Plavebni_komora("Plavebni_komora", 1);
 
 void print_help() {
-	_Print("pomoc is here\n");
+	_Print("Spusteni: \n");
+    _Print("./projekt [PREPINAC] <HODNOTA> \n");
+    _Print("Prepinace: \n");
+    _Print("-c, --corridor      prida moznost si vybrat koridor DOL, DO, DL nebo LO\n");
+    _Print("-h, --help          vypise napovedu\n");
+    _Print("-n, --number        znaci pocet lodi ktere propluji danym koridorem za dany cas\n");
+    _Print("-y, --year          pocet let, pro ktery se pocitat\n");
+    _Print("--------------------------------------------------------------------------------\n");
+    _Print("Bez specifikovani hodnot jsou hodnoty nastavene na -c DOL, -n 40 a -y 1\n");
 }
 
 int get_time() {
 	return (int)(Time)%(DAY);
+}
+
+void get_cost(){
+    //osobni naklady
+    double personal_costs;
+    //provozni naklady
+    double operating_costs;
+    switch (corridor){
+    case DOL:
+        //178 400 000 Kč
+        personal_costs = 178400000;
+        //364 300 000 Kč
+        operating_costs = 364300000;
+        break;
+    case DO:
+        //122 400 000 Kč
+        personal_costs = 122400000;
+        //227 300 000 Kč
+        operating_costs = 227300000;
+        break;
+    case DL:
+        //113 000 000 Kč
+        personal_costs = 113000000;
+        //250 600 000 Kč
+        operating_costs = 250600000;
+        break;
+    case LO:
+        //121 500 000 Kč
+        personal_costs = 121500000;
+        //2506 600 000 Kč
+        operating_costs = 250600000;
+        break;
+    default:
+        break;
+    }
+    costs = (personal_costs + operating_costs) * year;
 }
 
 class Lod: public Process {
@@ -123,14 +180,28 @@ int main(int argc, char const *argv[])
 	simulation_time = WEEK;
 
 	for (int i = 1; i < argc; i++) {
-		if(strcmp(argv[i], "--help") == 0){
+        //vypis napovedy
+		if((strcmp(argv[1], "--help") == 0) || (strcmp(argv[1], "-h") == 0)){
 			print_help();
 			exit(EXIT_SUCCESS);
 		}
-		if (strcmp(argv[i], "-n") == 0) {
-			pocet_lodi = atol(argv[i+1]);
+        //pocet lodi
+		if(strcmp(argv[i], "-n") == 0) {
+            i++;
+            if(argc == i){
+                std::cerr << "Nebyl zadan pocet lodi" << std::endl;
+                exit(EXIT_FAILURE);
+            }else{
+                try {
+                    pocet_lodi = std::stoi(argv[i]);
+                }
+                catch (std::exception const &e) {
+                    std::cerr << "Pocet lodi musi byt cele cislo" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
 		}
-		if (strcmp(argv[i], "-t") == 0) {
+		if(strcmp(argv[i], "-t") == 0) {
 			try {
 				simulation_time = std::stoi(argv[i+1]);
 			}
@@ -139,8 +210,49 @@ int main(int argc, char const *argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
+		//vyber koridoru
+		if((strcmp(argv[i], "--corridor") == 0) || (strcmp(argv[i], "-c") == 0)){
+            i++;
+            if (argc == i) {
+                std::cerr << "Nebyl zadan koridor" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            else {
+                if(strcmp(argv[i], "DOL") == 0){
+                    corridor = DOL;
+                }else if(strcmp(argv[i], "DO") == 0){
+                    corridor = DO;
+                }else if(strcmp(argv[i], "DL") == 0){
+                    corridor = DL;
+                }else if(strcmp(argv[i], "LO") == 0){
+                    corridor = LO;
+                }else{
+                    std::cerr << "Spatne zadany koridor" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+		}
+        //vyber poctu let
+        if((strcmp(argv[i], "--year") == 0) || (strcmp(argv[i], "-y") == 0)){
+            i++;
+            if (argc == i) {
+                std::cerr << "Nebyl zadan rok" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            else {
+                try {
+				    year = std::stoi(argv[i]);
+                }
+                catch (std::exception const &e) {
+                    std::cerr << "Rok musi byt cele cislo" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+		}
 	}
-	_Print("%d", simulation_time);
+    get_cost();
+    _Print("Celkove naklady: %.0lf Kc\n", costs);
+	_Print("%d \n", simulation_time);
 	RandomSeed(time(NULL));
 	Init(0, simulation_time);
 
