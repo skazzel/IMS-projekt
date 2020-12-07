@@ -12,7 +12,7 @@
 #define ZBOZI_TRIDA_5 0.57 // podil zbozi 20%
 #define ZBOZI_TRIDA_6 0.40 // podil zbozi 30%
 
-class generator: public Event {
+class generator: public Process {
 public:
 	void Behavior();
 };
@@ -52,7 +52,7 @@ void print_help() {
     _Print("Prepinace: \n");
     _Print("-c, --corridor      prida moznost si vybrat koridor DOL, DO, DL nebo LO\n");
     _Print("-h, --help          vypise napovedu\n");
-    _Print("-n, --number        znaci pocet lodi ktere propluji danym koridorem za dany cas\n");
+    _Print("-n                  znaci pocet lodi ktere propluji danym koridorem za dany cas\n");
     _Print("-y, --year          pocet let, pro ktery se pocitat\n");
     _Print("--------------------------------------------------------------------------------\n");
     _Print("Bez specifikovani hodnot jsou hodnoty nastavene na -c DOL, -n 1000 a -y 1\n");
