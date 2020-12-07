@@ -20,7 +20,7 @@ public:
 long long int profit = 0;
 std::vector<long long int> soucet_profit;
 int simulation_time = 0;
-int pocet_lodi = 5000;
+int pocet_lodi = 1000;
 int STREDNI_LOZENI_PLAVIDLA = 3088; 
 float ZBOZI_TRIDA_cena = 0;
 const int MINUTE = 60;
@@ -55,7 +55,7 @@ void print_help() {
     _Print("-n, --number        znaci pocet lodi ktere propluji danym koridorem za dany cas\n");
     _Print("-y, --year          pocet let, pro ktery se pocitat\n");
     _Print("--------------------------------------------------------------------------------\n");
-    _Print("Bez specifikovani hodnot jsou hodnoty nastavene na -c DOL, -n 5000 a -y 1\n");
+    _Print("Bez specifikovani hodnot jsou hodnoty nastavene na -c DOL, -n 1000 a -y 1\n");
 }
 
 void get_cost(){
@@ -151,13 +151,13 @@ public:
 				double cas = Time / (86400 * pocet_dnu);
 				cas *= 24;
 				if (cas >= 6 && cas <= 19) {
-					soucet_profit.push_back(STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena * chamber_number);
+					soucet_profit.push_back(STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena * chamber_number * 26);
 				}
 				else if (cas > 19 && cas <= 24) {
-					soucet_profit.push_back(chamber_number * STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena + 25);
+					soucet_profit.push_back(chamber_number * STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena * 26 + 25 * 26);
 				}
 				else if (cas < 6) {
-					soucet_profit.push_back(chamber_number * STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena + 60);
+					soucet_profit.push_back(chamber_number * STREDNI_LOZENI_PLAVIDLA * ZBOZI_TRIDA_cena * 26 + 60 * 26);
 				}
 			}
 			Leave(Plavebni_komora, 1);
