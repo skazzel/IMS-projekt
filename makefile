@@ -1,8 +1,8 @@
-projekt: projekt.o
-	g++ projekt.o -o projekt -lm -lsimlib
+main: main.o
+	g++ main.o -o main -lm -lsimlib
 
-projekt.o: projekt.cpp
-	g++ -c projekt.cpp
+main.o: main.cpp
+	g++ -c main.cpp
 
 clean:
-	rm *.o projekt
+	rm *.o main
